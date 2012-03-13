@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-class AccessList:
+class AccessList(object):
     '''
     pyrange.AccessList
     attributes:
@@ -29,11 +29,11 @@ class AccessList:
         return store.get('namespace',name)
 
 
-class AccessListUser:
+class User(object):
     '''
     '''
 
-class AccessListGroup:
+class Group(object):
     '''
     '''
 

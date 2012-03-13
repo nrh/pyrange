@@ -4,5 +4,5 @@
 import pyrange.wsgiserver
 
 if __name__ == '__main__':
-    pyrange.wsgiserver.Server('localhost',8000).start()
+    pyrange.wsgiserver.start()
 

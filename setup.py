@@ -11,9 +11,8 @@ setup(
     author_email='nrh@spotify.com',
     url='https://github.com/nrh/pyrange',
     packages=['distutils', 'distutils.command'],
-    requires=['gserver', 'gevent', 'pysqlite', 'json'],
+    requires=['gserver', 'gevent', 'pysqlite', 'json', 'bottle'],
     setup_requires=['nose>=1.0'],
-    tests_require=['requests'],
     license='Apache 2.0',
     test_suite='nose.collector',
     )

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-class RangeStore:
+class Store(object):
     '''abstracted storage'''
     def __init__(self):
         pass

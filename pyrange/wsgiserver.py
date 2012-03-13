@@ -1,22 +1,20 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from gevent.wsgi import WSGIServer
-from pyrange.request import RangeRequest
-from pyrange.request_handler import RangeRequestHandler
+from gevent import monkey; monkey.patch_all()
+import bottle
+import config
+import api_handler
 
-class Server:
+conf = config.Config()
+api = api_handler.APIHandler()
 
-    '''Start a wsgi server, pass requests to RangeRequest for handling'''
+def rangeapp(env, start_response):
+    res = api.handle_request(env)
+    start_response(res.headerlist)
+    return res.body
 
-    def __init__(self, addr, port, **kwargs):
-        self.addr = addr
-        self.port = port
+def start():
+    run(host=conf.addr, port=conf.port, server=gevent).serve_forever()
 
-    def rangeapp(self, env, start_resp):
-        req = RangeRequest(env, start_resp)
-        return RangeRequestHandler(req).handle_request()
-
-    def start(self):
-        WSGIServer((self.addr, self.port), self.rangeapp).serve_forever()
 

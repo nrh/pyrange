@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-class Role:
+class Role(object):
     '''
     pyrange.Role
     attributes:

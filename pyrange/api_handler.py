@@ -3,6 +3,11 @@
 
 import json
 import re
+import webob
+
+import store
+import auth
+import request
 
 baseurl = '/v1'
 method_map = {
@@ -23,29 +28,45 @@ resp_codes = {
     }
 
 
-def handle(method, path_re):
+def route(method, path_re):
     '''decorator for mapping an (http_method,regex) tuple to a function'''
-    def wrap(f):
+
+    def decorate(f):
         regex = re.compile(path_re)
         method_map[method][regex] = f
         return f
 
-    return wrap
+    return decorate
 
 
-class RangeRequestHandler:
+class APIHandler(object):
 
-    '''Take a range request object, generate a useful response for WSGI'''
+    '''Handle a range API request, generate a usseful response for WSGI'''
 
-    def __init__(self, req):
-        self.req = req
+    def __init__(self):
         self.response_headers = [('Content-type', 'application/json')]
+        self.store = store.Store()
 
-    def default_handler(self, foo, match):
-        return self.response_bad_request()
+    def handle_request(self, env):
+        '''Handle an API request, returning a webob.Response
 
-    def handle_request(self):
+        In all cases including errors, this method should return a valid
+        webob.Response.
+
+        @type env: dict
+        @param env: the WSGI environment for the request
+        @rtype: webob.Response
+        @return: response object suitable for presentation in the API
+        '''
+
         request_handler = self.default_handler
+
+        # authenticate
+        env = auth.authenticate(env)
+        if isinstance(env, webob.Response):
+            return env
+
+        self.req = request.RangeRequest(env)
         path_map = method_map[self.req.method]
 
         handler_match = None
@@ -56,35 +77,40 @@ class RangeRequestHandler:
                 request_handler = path_map[key]
 
         # fake out self here.
-        return request_handler(self,handler_match)
+        return request_handler(self, handler_match)
+
+    def default_handler(self, foo, match):  # foo is another copy of self due to fakery above
+        return self.response_bad_request()
 
     # {{{ namespaces
 
-    @handle('GET', '^\/namespaces/?$')
+    @route('GET', r'^\/namespaces/?$')
     def get_all_namespaces(self, match):
         '''request a list of namespaces'''
 
-        return self.response_ok()
+        return self.response_ok(body=self.store.get_all_namespaces())
 
-    @handle('PUT', '^\/namespaces/?$')
+    @route('PUT', r'^\/namespaces/?$')
     def add_namespaces(self, match):
         '''add a new namespace'''
 
+        # am I authenticated?
+
         pass
 
-    @handle('GET', '^\/namespaces/[a-z0-9]+')
+    @route('GET', r'^\/namespaces/[a-z0-9]+')
     def get_namespace(self, match):
         '''get a namespace'''
 
         pass
 
-    @handle('PUT', '^\/namespaces/[a-z0-9]+')
+    @route('PUT', r'^\/namespaces/[a-z0-9]+')
     def update_namespace(self, match):
         '''get a namespace'''
 
         pass
 
-    @handle('DELETE', '^\/namespaces/[a-z0-9]+')
+    @route('DELETE', r'^\/namespaces/[a-z0-9]+')
     def delete_namespace(self, match):
         '''get a namespace'''
 
@@ -93,25 +119,25 @@ class RangeRequestHandler:
     # }}}
     # {{{ roles
 
-    @handle('GET', '^\/[a-z0-9]+\/roles\/?$')
+    @route('GET', '^\/[a-z0-9]+\/roles\/?$')
     def get_namespace_roles(self, match):
         '''request a list of roles from a namespace'''
 
         pass
 
-    @handle('PUT', '^\/[a-z0-9]+\/roles\/?$')
+    @route('PUT', '^\/[a-z0-9]+\/roles\/?$')
     def add_namespace_roles(self, match):
         '''add or update roles in a namespace'''
 
         pass
 
-    @handle('PUT', '^\/[a-z0-9]+\/roles\/[a-z0-9\.]+')
+    @route('PUT', '^\/[a-z0-9]+\/roles\/[a-z0-9\.]+')
     def update_namespace_role(self, match):
         '''update a role'''
 
         pass
 
-    @handle('DELETE', '^\/[a-z0-9]+\/roles\/[a-z0-9\.]+')
+    @route('DELETE', '^\/[a-z0-9]+\/roles\/[a-z0-9\.]+')
     def delete_namespace_role(self, match):
         '''delete a role'''
 
@@ -120,31 +146,31 @@ class RangeRequestHandler:
     # }}}
     # {{{ tags
 
-    @handle('GET', '^\/tags\/?$')
+    @route('GET', '^\/tags\/?$')
     def get_tags(self, match):
         '''get list of tags'''
 
         pass
 
-    @handle('PUT', '^\/tags\/?$')
+    @route('PUT', '^\/tags\/?$')
     def add_tags(self, match):
         '''add or update tags'''
 
         pass
 
-    @handle('GET', '^\/tags/[a-z0-9_\:]+')
+    @route('GET', '^\/tags/[a-z0-9_\:]+')
     def get_tag(self, match):
         '''get a tag'''
 
         pass
 
-    @handle('PUT', '^\/tags/[a-z0-9_\:]+')
+    @route('PUT', '^\/tags/[a-z0-9_\:]+')
     def update_tag(self, match):
         '''update a tag'''
 
         pass
 
-    @handle('DELETE', '^\/tags/[a-z0-9_\:]+')
+    @route('DELETE', '^\/tags/[a-z0-9_\:]+')
     def delete_tag(self, match):
         '''delete a tag'''
 
@@ -153,31 +179,31 @@ class RangeRequestHandler:
     # }}}
     # {{{ acls
 
-    @handle('GET', '^\/acls\/?$')
+    @route('GET', '^\/acls\/?$')
     def get_acls(self, match):
         '''get list of acls'''
 
         pass
 
-    @handle('PUT', '^\/acls\/?$')
+    @route('PUT', '^\/acls\/?$')
     def add_acls(self, match):
         '''add or update acls'''
 
         pass
 
-    @handle('GET', '^\/acls/[a-z0-9_\:]+')
+    @route('GET', '^\/acls/[a-z0-9_\:]+')
     def get_acl(self, match):
         '''get a acl'''
 
         pass
 
-    @handle('PUT', '^\/acls/[a-z0-9_\:]+')
+    @route('PUT', '^\/acls/[a-z0-9_\:]+')
     def update_acl(self, match):
         '''update a acl'''
 
         pass
 
-    @handle('DELETE', '^\/acls/[a-z0-9_\:]+')
+    @route('DELETE', '^\/acls/[a-z0-9_\:]+')
     def delete_acl(self, match):
         '''delete a acl'''
 
@@ -186,13 +212,13 @@ class RangeRequestHandler:
     # }}}
     # {{{ members
 
-    @handle('GET', '^\/members\/?$')
+    @route('GET', '^\/members\/?$')
     def get_members(self, match):
         '''get a list of members'''
 
         pass
 
-    @handle('GET', '^\/members\/[a-z0-9_\.]+')
+    @route('GET', '^\/members\/[a-z0-9_\.]+')
     def get_members(self, match):
         '''get a members'''
 
@@ -201,8 +227,8 @@ class RangeRequestHandler:
     # }}}
     # {{{ range
 
-    @handle('GET', '^\\/range\\/?$')
-    @handle('POST', '^\\/range\\/?$')
+    @route('GET', '^\\/range\\/?$')
+    @route('POST', '^\\/range\\/?$')
     def expand_range(self, match):
         '''expand a range expression'''
 
@@ -210,21 +236,23 @@ class RangeRequestHandler:
     # }}}
 
     def response(self, code, body):
-        if self.req.suppress_response_codes:
+        if param_is_true(self.req.params['suppress_response_codes']):
             code = 200
 
-        if self.req.pretty:
+        if param_is_true(self.req.params['pretty']):
             jsopts = {'sort_keys': True, 'indent': 4}
         else:
             jsopts = {}
 
         message = '%d %s' % (code, resp_codes[code])
+        self.res.status = message
 
         if self.req.fields:
             body = self.filter_body(body)
 
-        self.req.start_resp(message, self.response_headers)
-        return json.dumps(body, **jsopts)
+        self.req.start_resp(self.res.status, self.res.headerlist)
+        self.res.body = json.dumps(body, **jsopts)
+        return self.res
 
     def filter_body(self, body):
         d = dict({})
@@ -258,17 +286,17 @@ class RangeRequestHandler:
 
     def response_bad_request(self, body=dict({})):
         return self.response_error(400, "I couldn't understand your request",
-                              body=body)
+                                   body=body)
 
     def response_unauthorized(self, body=dict({})):
         return self.response_error(401,
-                              'Authorization required to access this resource',
-                              body=body)
+                                   'Authorization required to access this resource'
+                                   , body=body)
 
     def response_forbidden(self, body=dict({})):
         return self.response_error(403,
-                              'Insufficient privileges to access this resource'
-                              , body=body)
+                                   'Insufficient privileges to access this resource'
+                                   , body=body)
 
     def response_not_found(self, body=dict({})):
         return self.response_error(404, 'Resource not found', body=body)

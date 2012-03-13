@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-class Namespace:
+class Namespace(object):
     '''
     pyrange.Namespace
     attributes:

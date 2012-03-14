@@ -1,18 +1,29 @@
+import argparse
+import yaml
+
+parser = argparse.ArgumentParser(description='start the pyrange server')
+parser.add_argument('--port', default=9191, type=int, help='port')
+parser.add_argument('--addr', default='127.0.0.1', type=str,
+                    help='address for bind()')
+parser.add_argument('-c', dest='configfile', default='/etc/pyrange.conf',
+                    type=str, help='config file')
+args = parser.parse_args()
+
 
 class Config(object):
-    _instance = None
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(Config, cls).__new__(cls, *args, **kwargs)
 
-        return cls._instance
+    def __init__(self, d):
+        self.d = d
 
+    def __getattr__(self, m):
+        return self.d.get(m, None)
 
-    def __init__(self):
-        self.port = 9191
-        self.addr = '127.0.0.1'
-        self.auth_header = 'X-Authentication'
-        self.auth_user_header = 'X-Authenticated-User'
+    def __str__(self):
+        return repr(self.d)
 
 
+with open(args.configfile) as f:
+    y = yaml.load(f)
+    conf = Config(dict(y.items() + dict(args._get_kwargs()).items()))
+    print conf
 

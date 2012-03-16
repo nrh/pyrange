@@ -3,6 +3,9 @@
 
 from bottle import Bottle, Response
 from bottle import response, request
+
+from core import Acl, Member, Namespace, Role
+
 import json
 
 app = Bottle()
@@ -21,12 +24,19 @@ def get_all_namespaces():
 
 
 @app.put('/namespaces')
-def add_namespaces():
+def add_namespace():
     '''add a new namespace'''
 
-    # am I authenticated?
+    if not hasattr(response, '_body'):
+        response._body = {}
 
-    pass
+    try:
+        ns = Namespace(json.decode(request.body))
+        response._body = ns.commit()
+    except:
+        raise HTTPError(code=400, output="couldn't understand your request")
+
+    return response._body
 
 
 @app.get('/namespaces/<ns>')

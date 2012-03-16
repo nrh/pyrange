@@ -1,16 +1,6 @@
-#!/usr/bin/env python
+from sqlalchemy import create_engine
 
-class Store(object):
-    '''abstracted storage'''
-    def __init__(self):
-        pass
+from config import conf
 
-    def get_all_namespaces(self):
-        pass
-
-    def get_all_acls(self):
-        pass
-
-
-
+store = create_engine(conf.db, echo=True)
 

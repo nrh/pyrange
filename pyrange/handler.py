@@ -1,14 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from bottle import Bottle, Response
+import sys
+import json
+from traceback import format_exc
+
+from bottle import Bottle, Response, HTTPError
 from bottle import response, request
 
-from core import Acl, Member, Namespace, Role
-
-import json
+from core import AccessList, Member, Namespace, Role
 
 app = Bottle()
+import bottle
 
 # {{{ namespaces
 
@@ -19,7 +22,7 @@ def get_all_namespaces():
     if not hasattr(response, '_body'):
         response._body = {}
 
-    response._body.update({'ok': 'sup'})
+    response._body.update({'namespaces':['testns']})
     return response._body
 
 
@@ -34,7 +37,10 @@ def add_namespace():
         ns = Namespace(json.decode(request.body))
         response._body = ns.commit()
     except:
-        raise HTTPError(code=400, output="couldn't understand your request")
+        if sys.exc_type == 'HTTPError':
+            raise
+        else:
+            raise HTTPError(code=400, output="couldn't understand your request")
 
     return response._body
 
@@ -224,7 +230,8 @@ def delete_namespace_role(ns=None, role=None):
 @app.error(404)
 @app.error(405)
 @app.error(418)
-def errorstuffs(err):
+@app.error(500)
+def respond_error(err):
     if not hasattr(response, '_body'):
         response._body = {}
 
@@ -234,6 +241,8 @@ def errorstuffs(err):
 
     response.content_type = 'application/json'
     response._body.update({'error': err.output})
+    if err.traceback:
+        response._body.update({'traceback': err.traceback})
 
     return json.dumps(response._body)
 

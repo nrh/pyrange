@@ -1,47 +1,62 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from store import store
+from bottle import HTTPError
+import pdb
+import store
+from sqlalchemy.sql import text
 
-class Namespace(object):
+# {{{ Namespace
+
+class Base(object):
+    def __init__(self):
+        pass
+
+class Namespace(Base):
     '''
     pyrange.Namespace
-    attributes:
-        name
-        acls
-        roles
-        created_by
-        created_at
+
+    id INTEGER NOT NULL,
+    name VARCHAR(64),
+    created_by INTEGER NOT NULL,
+    created_on DATETIME NOT NULL,
+    modified_by INTEGER NOT NULL,
+    modified_on DATETIME NOT NULL,
+    PRIMARY KEY (id)
+
     '''
 
-# namespace schema
-# id            int primary key
-# name          str(64)
-# created_by    int
-# created_on    timestamp
-# modified_by   int
-# modified_on   timestamp
-
-    def __init__(self, name):
-        self._meta = {'name': name}
-        store.
+    def __init__(self, name=None, data=None):
+        self.name = name
+        self.data = data
 
     def commit(self):
+        if not self.exists():
+            return self.create()
+        else:
+            return self.update()
 
-    def name(self):
-        return self._meta['name']
+    def create(self):
+        '''sudo make me a namespace'''
+        pdb.set_trace()
+        t = store.conn.begin()
+        insert = text("INSERT INTO namespaces VALUES ('',?,?,'',?,'')").compile()
+        try:
+            r1 = t.execute(insert, (self.name, 'nrh', 'nrh'))
+            t.commit()
+        except:
+            t.rollback()
+            raise HTTPError(code=500, output="transaction failure")
 
-    def acls(self):
-        return self._acls
+        return {'ok':'created'}
 
-    def created_by(self):
-        return self._created_by
+    def exists(self):
+        return False
 
-    def roles(self):
-        return store.get('namespace',name)
+    def update(self):
+        pass
 
-
-# -*- coding: utf-8 -*-
+# }}}
+# {{{ Role
 
 class Role(object):
     '''
@@ -70,10 +85,17 @@ class Role(object):
     def roles(self):
         return store.get('namespace',name)
 
+# }}}
+# {{{ Member
 
-# -*- coding: utf-8 -*-
+class Member(Base):
+    def __init__(self):
+        pass
 
-class AccessList(object):
+# }}}
+# {{{ AccessList
+
+class AccessList(Base):
     '''
     pyrange.AccessList
     attributes:
@@ -101,12 +123,17 @@ class AccessList(object):
     def roles(self):
         return store.get('namespace',name)
 
+# }}}
+# {{{ User
 
-class User(object):
-    '''
-    '''
-
-class Group(object):
+class User(Base):
     '''
     '''
 
+# }}}
+# {{{ Group
+
+class Group(Base):
+    '''
+    '''
+# }}}

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from bottle import HTTPError
+from traceback import format_exc
 import pdb
 import store
 from sqlalchemy.sql import text
@@ -45,7 +46,7 @@ class Namespace(Base):
             t.commit()
         except:
             t.rollback()
-            raise HTTPError(code=500, output="transaction failure")
+            raise HTTPError(code=500, output="transaction failure", traceback=format_exc(10))
 
         return {'ok':'created'}
 

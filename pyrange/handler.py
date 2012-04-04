@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import pdb
 import sys
 import json
 from traceback import format_exc
@@ -33,14 +34,16 @@ def add_namespace():
     if not hasattr(response, '_body'):
         response._body = {}
 
+    pdb.set_trace()
     try:
-        ns = Namespace(json.decode(request.body))
+        ns = Namespace(json.load(request.body))
         response._body = ns.commit()
     except:
+        # if something lower-level tries to pass up an HTTPError, assume they know what they're doing and let it through
         if sys.exc_type == 'HTTPError':
             raise
         else:
-            raise HTTPError(code=400, output="couldn't understand your request")
+            raise HTTPError(code=400, output="couldn't understand your request", traceback=format_exc(10))
 
     return response._body
 

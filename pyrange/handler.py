@@ -34,7 +34,6 @@ def add_namespace():
     if not hasattr(response, '_body'):
         response._body = {}
 
-    pdb.set_trace()
     try:
         ns = Namespace(json.load(request.body))
         response._body = ns.commit()

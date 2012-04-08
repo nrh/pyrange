@@ -86,4 +86,3 @@ def get_table(tname):
 def namespaces(**kwargs):
     return get_table('namespaces')
 
-

@@ -6,57 +6,92 @@ import sys
 import json
 from traceback import format_exc
 
-from bottle import Bottle, Response, HTTPError
+from bottle import Bottle, Response, HTTPError, HTTPResponse
 from bottle import response, request
 
-from core import AccessList, Member, Namespace, Role
+import core
+import store
 
 app = Bottle()
 import bottle
 
+import datetime
+import logging
+FORMAT = \
+    '%(asctime)s %(levelname)s %(filename)s:%(linenum)d %(funcName)s %message'
+logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+logger = logging.getLogger(__name__)
+
 # {{{ namespaces
+
 
 @app.get('/namespaces')
 def get_all_namespaces():
     '''request a list of namespaces'''
-
-    if not hasattr(response, '_body'):
-        response._body = {}
-
-    response._body.update({'namespaces':['testns']})
-    return response._body
+    logger.debug('GET /namespaces')
+    body = {}
+    nlist = store.get_all_namespaces()
+    body.update({'namespaces': nlist })
+    return body
 
 
 @app.put('/namespaces')
 def add_namespace():
     '''add a new namespace'''
 
-    if not hasattr(response, '_body'):
-        response._body = {}
+    logger.debug('PUT /namespaces')
+    body = {}
 
     try:
-        ns = Namespace(json.load(request.body))
-        response._body = ns.commit()
-    except:
-        # if something lower-level tries to pass up an HTTPError, assume they know what they're doing and let it through
-        if sys.exc_type == 'HTTPError':
+        r = json.load(request.body)
+        ns = core.Namespace(r['name'], r)
+        if ns.exists():
+            ns.update()
+            response.status = '200 OK Updated /namespaces/%s' % (ns.name, )
+        else:
+            ns.create()
+            response.status = '201 OK Created /namespaces/%s' % (ns.name, )
+
+        return body
+    except Exception, e:
+
+        logger.error(format_exc(10))
+        if isinstance(e, HTTPError):
             raise
         else:
-            raise HTTPError(code=400, output="couldn't understand your request", traceback=format_exc(10))
+            raise HTTPError(code=400, output="couldn't understand your request"
+                            , traceback=format_exc(10))
 
-    return response._body
 
-
-@app.get('/namespaces/<ns>')
-def get_namespace(ns=None):
+@app.get('/namespaces/<nsname>')
+def get_namespace(nsname=None):
     '''get a namespace'''
 
-    pass
+    logger.debug('GET /namespace/%s' % (nsname, ))
+    body = {}
+
+    try:
+        ns = core.Namespace(nsname)
+        data = ns.data()
+        # need to turn the datetime objects into strings for serialization.
+        [data.update({k: int(data[k].strftime('%s'))}) for k in data.keys()
+         if isinstance(data[k], datetime.datetime)]
+        return {nsname: data}
+    except Exception, e:
+
+        logger.error(format_exc(10))
+        if isinstance(e, HTTPError):
+            raise
+        else:
+            raise HTTPError(code=400, output="couldn't understand your request"
+                            , traceback=format_exc(10))
 
 
 @app.put('/namespaces/<ns>')
 def update_namespace(ns=None):
     '''add/update a namespace'''
+
+    logger.debug('PUT /namespace/%s' % (ns, ))
 
     pass
 
@@ -70,24 +105,32 @@ def delete_namespace(ns=None):
 # }}}
 # {{{ roles
 
+
 @app.get('/<ns>/roles')
 def get_namespace_roles(ns=None):
     '''request a list of roles from a namespace'''
+
     pass
+
 
 @app.put('/<ns>/roles')
 def add_namespace_roles(ns=None):
     '''add or update roles in a namespace'''
+
     pass
+
 
 @app.put('/<ns>/roles/<role>')
 def update_namespace_role(ns=None, role=None):
     '''update a role'''
+
     pass
+
 
 @app.delete('/<ns>/roles/<role>')
 def delete_namespace_role(ns=None, role=None):
     '''delete a role'''
+
     pass
 
 # }}}
@@ -181,48 +224,26 @@ def delete_namespace_role(ns=None, role=None):
 #
 #        pass
 #    # }}}
-#
-#    def response(self, code, body):
-#        if param_is_true(self.req.params['suppress_response_codes']):
-#            code = 200
-#
-#        if param_is_true(self.req.params['pretty']):
-#            jsopts = {'sort_keys': True, 'indent': 4}
-#        else:
-#            jsopts = {}
-#
-#        message = '%d %s' % (code, resp_codes[code])
-#        self.res.status = message
-#
-#        if self.req.fields:
-#            body = self.filter_body(body)
-#
-#        self.req.start_resp(self.res.status, self.res.headerlist)
-#        self.res.body = json.dumps(body, **jsopts)
-#        return self.res
-#
-#    def filter_body(self, body):
-#        d = dict({})
-#        for k in self.req.fields:
-#            try:
-#                d[k] = body[k]
-#            except KeyError:
-#                d[k] = None
-#        return d
-#
-#    # {{{ success response types
-#    # body is always a dict
-#
-#    def response_ok(self, body=dict({})):
-#        return self.response(200, body)
-#
-#    def response_created(self, body=dict({})):
-#        return self.response(201, body)
-#
-#    def response_deleted(self, body=dict({})):
-#        return self.response(200, body)
-#
-#    # }}}
+# {{{ misc helpers
+
+
+def pretty_print(resp):
+    '''takes a parsed-from-json response and pretty-prints it'''
+
+    str = ''
+    for key in resp:
+        str += '''
+>>> %s
+''' % (key, )
+        str += resp[key]
+        str += '''
+<<< %s
+''' % (key, )
+
+    return str
+
+
+# }}}
 # {{{ error response types
 
 
@@ -234,19 +255,22 @@ def delete_namespace_role(ns=None, role=None):
 @app.error(418)
 @app.error(500)
 def respond_error(err):
-    if not hasattr(response, '_body'):
-        response._body = {}
+    '''copy the err info into our HTTPResponse object'''
+
+    body = {}
+    response.content_type = 'application/json'
 
     if request.query.suppress_response_codes == u'1':
         response.status = '200 OK'
-        response._body.update({'errc': err.status})
+        body.update({'errc': err.status})
+    else:
+        response.status = err.status
 
-    response.content_type = 'application/json'
-    response._body.update({'error': err.output})
     if err.traceback:
-        response._body.update({'traceback': err.traceback})
+        body.update({'traceback': err.traceback})
 
-    return json.dumps(response._body)
+    body.update({'error': err.output})
+    return json.dumps(body)
 
 # }}}
 

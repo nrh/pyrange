@@ -17,7 +17,7 @@ import logging
 FORMAT = \
     '%(asctime)s %(levelname)s %(filename)s:%(linenum)d %(funcName)s %message'
 logging.basicConfig(level=logging.DEBUG, format=FORMAT)
-logger = logging.getLogger('pyrange.tests')
+logger = logging.getLogger(__name__)
 
 addr = 'test'
 port = 15232

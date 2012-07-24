@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from gevent import monkey; monkey.patch_all()
-import bottle
+from  bottle import run
 import config
 import api_handler
 
@@ -15,6 +15,6 @@ def rangeapp(env, start_response):
     return res.body
 
 def start():
-    run(host=conf.addr, port=conf.port, server=gevent).serve_forever()
+    run(host=conf.addr, port=conf.port, server='gevent').serve_forever()
 
 

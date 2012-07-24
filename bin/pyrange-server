@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pyrange.wsgiserver
+from pyrange import wsgiserver
 
 if __name__ == '__main__':
-    pyrange.wsgiserver.start()
+    wsgiserver.start()
 

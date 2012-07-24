@@ -1,0 +1,9 @@
+WebOb==1.2
+bottle==0.10.11
+distribute==0.6.28
+gevent==0.13.7
+greenlet==0.4.0
+gserver==0.1.10
+nose==1.1.2
+requests==0.13.3
+wsgiref==0.1.2

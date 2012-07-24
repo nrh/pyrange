@@ -1,6 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import setuptools
 from distutils.core import setup
 
 setup(
@@ -10,8 +11,8 @@ setup(
     author='Nicholas Harteau',
     author_email='nrh@spotify.com',
     url='https://github.com/nrh/pyrange',
-    packages=['distutils', 'distutils.command'],
-    requires=['gserver', 'gevent', 'pysqlite', 'json', 'bottle'],
+    packages=['pyrange'],
+    requires=['gserver', 'gevent', 'pysqlite', 'bottle', 'WebOb', 'requests'],
     setup_requires=['nose>=1.0'],
     license='Apache 2.0',
     test_suite='nose.collector',

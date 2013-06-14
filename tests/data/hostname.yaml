@@ -1,0 +1,18 @@
+---
+input: foo.bar.baz
+result: foo.bar.baz
+---
+input: foo1.bar.baz
+result: foo1.bar.baz
+---
+input: '1foo.bar.baz'
+result: '1foo.bar.baz'
+---
+input: foo_bar.baz.com
+result: foo_bar.baz.com
+---
+input: 'foo-bar.baz.com'
+result: 'foo-bar.baz.com'
+---
+input: foo
+result: foo

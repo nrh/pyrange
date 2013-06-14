@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+# -*- coding: utf-8 -*- 
 
 import pyrange.peg
 import pypeg2.xmlast

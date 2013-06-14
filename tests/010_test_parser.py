@@ -10,8 +10,8 @@ sys.path.append('..')
 import pyrange.peg
 from pyrange.parser import xmldump
 
-PARSERS = ['Expando', 'StringPart', 'Part', 'Hostname', 'Pattern', 'Role',
-           'Operator', 'RangePart', 'Range']
+PARSERS = ['Operator', 'Expando', 'StringPart', 'Part', 'String', 'Pattern',
+           'Role', 'RangePart', 'RangeExpr']
 
 
 def test_range():

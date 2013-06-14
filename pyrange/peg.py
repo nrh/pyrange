@@ -2,11 +2,6 @@
 from __future__ import unicode_literals, print_function
 from pypeg2 import *  # NOQA
 
-# foo[1-10].bar.com
-# [1-10]foo.bar.com
-# foo[1-10]bar.baz.com
-
-
 Symbol.regex = re.compile(r'[\w\&\-]+')
 
 
@@ -15,7 +10,7 @@ class Operator(Symbol):
 
 
 class Expando(List):
-    grammar = '[', attr('begin', re.compile(r'\d+')), '-', \
+    grammar = '[', attr('begin', re.compile(r'\d+')), ['-', ':'], \
         attr('end', re.compile(r'\d+')), ']'
 
 
@@ -27,7 +22,7 @@ class Part(List):
     grammar = [StringPart, Expando]
 
 
-class Hostname(List):
+class String(List):
     grammar = some(Part)
 
 
@@ -36,12 +31,12 @@ class Pattern(str):
 
 
 class Role(str):
-    grammar = '@', name()
+    grammar = '@', attr('name', StringPart)
 
 
 class RangePart(List):
-    grammar = [Pattern, Hostname, Role]
+    grammar = [Pattern, String, Role]
 
 
-class Range(List):
+class RangeExpr(List):
     grammar = RangePart, maybe_some(',', optional(Operator), RangePart)

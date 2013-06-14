@@ -24,7 +24,7 @@ def test_range():
     def do_test(p, data):
         pclass = getattr(pyrange.peg, p)
         r = pyrange.peg.parse(data['input'], pclass)
-        print xmldump(r)
+        print "\n", xmldump(r)
         #ok_(r, data.result)
         return
 

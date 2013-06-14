@@ -6,7 +6,12 @@ from pypeg2 import *  # NOQA
 # [1-10]foo.bar.com
 # foo[1-10]bar.baz.com
 
-exprsep = ','
+
+Symbol.regex = re.compile(r'[\w\&\-]+')
+
+
+class Operator(Symbol):
+    grammar = Enum(K("&"), K("-"))
 
 
 class Expando(List):
@@ -26,22 +31,17 @@ class Hostname(List):
     grammar = some(Part)
 
 
-class Operator(Keyword):
-    '''
-    @ => role lookup
-    & => intersection
-    - => disjoint
-    '''
-    grammar = Enum(K('@'), K('&'), K('-'))
-
-
 class Pattern(str):
-    grammar = '/', re.compile(r'[^\/]'), '/'
+    grammar = re.compile(r'^\/.*\/$')
+
+
+class Role(str):
+    grammar = '@', name()
 
 
 class RangePart(List):
-    grammar = [Pattern, Hostname]
+    grammar = [Pattern, Hostname, Role]
 
 
-class Range(Namespace):
-    grammar = some(csl(RangePart))
+class Range(List):
+    grammar = RangePart, maybe_some(',', optional(Operator), RangePart)

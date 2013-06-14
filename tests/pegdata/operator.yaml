@@ -1,0 +1,10 @@
+---
+input: '&'
+result: '&'
+---
+input: '-'
+result: '-'
+---
+raises: true
+input: '%'
+result:

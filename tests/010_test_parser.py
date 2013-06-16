@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import inspect
 import os
+import pypeg2
 import sys
 import yaml
 from nose.tools import timed, raises
@@ -23,7 +24,7 @@ def test_range():
     @timed(.1)
     def do_test(p, data):
         pclass = getattr(pyrange.peg, p)
-        r = pyrange.peg.parse(data['input'], pclass)
+        r = pypeg2.parse(data['input'], pclass)
         print "\n", xmldump(r)
         #ok_(r, data.result)
         return

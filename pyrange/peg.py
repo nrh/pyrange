@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
-from pypeg2 import *  # NOQA
+from pypeg2 import Symbol, Enum, List, K
+from pypeg2 import attr, re, some, maybe_some, optional
 
 Symbol.regex = re.compile(r'[\w\&\-]+')
 

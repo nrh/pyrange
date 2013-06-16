@@ -3,10 +3,11 @@
 import pyrange.peg
 import pyrange.range
 import pypeg2.xmlast
+import pypeg2
 
 
 def expand_range(expr):
-    r = pyrange.peg.parse(expr, pyrange.peg.RangeExpr)
+    r = pypeg2.parse(expr, pyrange.peg.RangeExpr)
     return r
 
 

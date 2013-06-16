@@ -2,6 +2,7 @@
 import inspect
 import os
 import pypeg2
+import pypeg2.xmlast
 import sys
 import yaml
 from nose.tools import timed, raises, assert_equal
@@ -9,7 +10,6 @@ from nose.tools import timed, raises, assert_equal
 
 sys.path.append('..')
 import pyrange.peg
-from pyrange.parser import xmldump
 
 PARSERS = ['Operator', 'Expando', 'StringPart', 'Part', 'String', 'Pattern',
            'Role', 'RangePart', 'RangeExpr']
@@ -32,7 +32,7 @@ def test_range():
                 assert_equal(data[key], r)
             else:
                 assert_equal(data[key], getattr(r, key))
-        print "\n", xmldump(r)
+        print "\n", pypeg2.xmlast.thing2xml(r, pretty=True)
         #ok_(r, data.result)
         return
 

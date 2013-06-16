@@ -1,2 +1,1 @@
-TESTING = True
-SERVER_NAME = 'localhost:5001'
+# -*- coding: utf-8 -*-

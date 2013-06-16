@@ -4,7 +4,10 @@ test:
 	@nosetests -v
 
 run-test:
-	@PYRANGE_CONFIG=$(TOP)/tests/config.py $(TOP)/range-server.py
+	@$(TOP)pyrange-server.py -c tests/pyrange-test.conf
 
 run:
-	@$(TOP)/range-server.py
+	@$(TOP)pyrange-server.py -c etc/pyrange.conf
+
+clean:
+	@find . -name "*.pyc" -exec rm {} \;

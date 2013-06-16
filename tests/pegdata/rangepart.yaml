@@ -1,12 +1,8 @@
 ---
 input: foo
-result: foo
 ---
 input: bar1
-result: bar1
 ---
 input: 'foo[1-10]'
-result:
 ---
 input: '[1-10]foo'
-result:

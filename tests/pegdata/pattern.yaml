@@ -1,3 +1,12 @@
 ---
 input: '/10/'
-result:
+is: '/10/'
+---
+input: '/a.*b/'
+is: '/a.*b/'
+---
+input: '/a[^/]/'
+is: '/a[^/]/'
+---
+input: '/a@foo/'
+is: '/a@foo/'

@@ -1,28 +1,23 @@
 ---
 input: foo,bar
-result: foo,bar
 ---
-name: 'bar1,bar2'
+testname: 'bar1,bar2'
 input: |
   bar1
   ,
   bar2
-result: bar1,bar2
 ---
-name: 'foo[1-10],&/10'
+testname: 'foo[1-10],&/10'
 input: |
   foo
   [1-10]
   ,
   &
   /10/
-result: foo10
 ---
 input: '[1-10]foo,&/10/'
-result: '10foo'
 ---
 input: 'foo,bar,baz'
-result: 'foo,bar,baz'
 ---
 input: '@foo,&@bar'
-result: '@foo,&@bar'
+

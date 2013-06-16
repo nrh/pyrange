@@ -1,7 +1,5 @@
 ---
 input: '@foo'
-result:
 ---
 input: '@foo.bar.baz'
-result:
 

@@ -4,7 +4,7 @@ import os
 import pypeg2
 import sys
 import yaml
-from nose.tools import timed, raises
+from nose.tools import timed, raises, assert_equal
 
 
 sys.path.append('..')
@@ -25,6 +25,13 @@ def test_range():
     def do_test(p, data):
         pclass = getattr(pyrange.peg, p)
         r = pypeg2.parse(data['input'], pclass)
+        for key in data:
+            if key == 'input' or key == 'raises' or key == 'testname':
+                continue
+            if key == 'is':
+                assert_equal(data[key], r)
+            else:
+                assert_equal(data[key], getattr(r, key))
         print "\n", xmldump(r)
         #ok_(r, data.result)
         return
@@ -38,7 +45,7 @@ def test_range():
             tdata = yaml.load_all(f)
             tnum = 0
             for t in tdata:
-                tname = t['name'] if 'name' in t else t['input']
+                tname = t['testname'] if 'testname' in t else t['input']
                 if 'raises' in t:
                     do_test_raises.description = "nok_%s_%s\t'%s'\t" \
                         % (p.lower(), tnum, tname)

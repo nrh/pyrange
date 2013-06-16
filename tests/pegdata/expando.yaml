@@ -1,15 +1,27 @@
 ---
 input: '[1-10]'
+begin: '1'
+end: '10'
 ---
 input: '[1:10]'
+begin: '1'
+end: '10'
 ---
 input: '[10-1]'
+begin: '10'
+end: '1'
 ---
 input: '[9999-10000]'
+begin: '9999'
+end: '10000'
 ---
 input: '[0:1]'
+begin: '0'
+end: '1'
 ---
 input: '[0-1]'
+begin: '0'
+end: '1'
 ---
 raises: true
 input: '[0-1'

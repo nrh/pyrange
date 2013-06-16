@@ -1,10 +1,9 @@
 ---
 input: '&'
-result: '&'
+name: '&'
 ---
 input: '-'
-result: '-'
+name: '-'
 ---
 raises: true
 input: '%'
-result:

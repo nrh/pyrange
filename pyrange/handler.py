@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from pyrange import app
+import pyrange.store
 
 
 @app.route('/')
 def status():
-    return 'status!'
+    store = pyrange.store.get_store()
+    return store.status()
 
 
 @app.route('/ns/', methods=['GET'])

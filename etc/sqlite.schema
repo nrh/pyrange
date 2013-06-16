@@ -1,0 +1,25 @@
+DROP TABLE IF EXISTS namespaces;
+CREATE TABLE namespaces (
+  ns_id INTEGER,
+  ns_name STRING NOT NULL,
+  PRIMARY KEY (ns_id, ns_name),
+);
+
+DROP TABLE IF EXISTS roles;
+CREATE TABLE roles (
+  role_id INTEGER,
+  role_name STRING NOT NULL,
+  FOREIGN KEY(ns_id) REFERENCES namespaces(ns_id) NOT NULL,
+  PRIMARY KEY(role_id),
+);
+ 
+DROP TABLE IF EXISTS tags;
+CREATE TABLE tags (
+  tag_id INTEGER,
+  tag_name STRING NOT NULL,
+  tag_value STRING,
+  FOREIGN KEY(role_id) REFERENCES roles(role_id) NOT NULL,
+  PRIMARY KEY(tag_id),
+);
+
+-- drop table if exists acls;
